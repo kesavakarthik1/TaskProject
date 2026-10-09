@@ -25,11 +25,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .site-header { height: 82px; position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.96); border-bottom: 1px solid rgba(229,234,241,.8); transition: box-shadow .25s, background .25s; }
 .site-header.scrolled { box-shadow: 0 8px 30px rgba(11,34,68,.09); background: rgba(255,255,255,.98); }
 .navbar { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.brand { display: inline-flex; align-items: center; gap: 9px; flex-shrink: 0; }
-.brand-mark { width: 36px; height: 36px; display: grid; place-items: center; color: var(--gold); font-size: 32px; }
-.brand-copy { display: flex; flex-direction: column; line-height: 1.04; }
-.brand-copy strong { color: var(--navy); font-family: "Manrope", sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -.9px; }
-.brand-copy small { margin-top: 5px; color: #79869b; font-size: 7px; font-weight: 700; letter-spacing: 1.05px; }
+.brand { display: inline-flex; align-items: center; flex-shrink: 0; }
+.brand-logo { display: block; width: clamp(120px, 17vw, 180px); height: auto; }
 .nav-links { display: flex; align-items: center; gap: clamp(15px, 1.8vw, 25px); }
 .nav-link { color: #42516a; font-size: 12px; font-weight: 600; transition: color .2s; white-space: nowrap; }
 .nav-link:hover, .nav-link.active { color: var(--blue); }
