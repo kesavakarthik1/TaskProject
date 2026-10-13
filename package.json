@@ -2,6 +2,7 @@
   "name": "lifetime-waitlist",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "LifeTime waitlist website and registration email backend",
   "main": "server.js",
   "scripts": {

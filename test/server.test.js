@@ -1,6 +1,8 @@
-const assert = require("node:assert/strict");
-const { test } = require("node:test");
-const { createApp, createConfirmationEmail, validateRegistration } = require("../server");
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { createApp } from "../server.js";
+import { createConfirmationEmail, validateRegistration } from "../shared/waitlist.js";
+import { onRequestPost } from "../functions/api/waitlist.js";
 
 const validRegistration = {
   name: "Aditi Sharma",
@@ -92,6 +94,81 @@ test("returns a delivery error when the mail provider rejects a message", async 
       await new Promise((resolve, reject) => {
         testServer.close((error) => error ? reject(error) : resolve());
       });
+    }
+  });
+
+  test("Cloudflare Pages function sends a confirmation through Resend", async () => {
+    const originalFetch = globalThis.fetch;
+    let resendRequest;
+    globalThis.fetch = async (url, options) => {
+      resendRequest = { url, options };
+      return new Response(JSON.stringify({ id: "email-id" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    };
+
+    try {
+      const response = await onRequestPost({
+        request: new Request("https://example.com/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(validRegistration)
+        }),
+        env: {
+          RESEND_API_KEY: "test-api-key",
+          RESEND_FROM: "LifeTime <hello@example.com>"
+        }
+      });
+      const body = await response.json();
+      const emailRequest = JSON.parse(resendRequest.options.body);
+
+      assert.equal(response.status, 201);
+      assert.match(body.message, /Loans, Aditi/);
+      assert.equal(resendRequest.url, "https://api.resend.com/emails");
+      assert.equal(resendRequest.options.headers.Authorization, "Bearer test-api-key");
+      assert.deepEqual(emailRequest.to, [validRegistration.email]);
+      assert.equal(emailRequest.from, "LifeTime <hello@example.com>");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("Cloudflare Pages function returns JSON when Resend rejects the email", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response("rejected", { status: 403 });
+
+    try {
+      const response = await onRequestPost({
+        request: new Request("https://example.com/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(validRegistration)
+        }),
+        env: {
+          RESEND_API_KEY: "test-api-key",
+          RESEND_FROM: "LifeTime <hello@example.com>"
+        }
+      });
+
+      test("Cloudflare Pages function reports missing Resend configuration", async () => {
+        const response = await onRequestPost({
+          request: new Request("https://example.com/api/waitlist", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(validRegistration)
+          }),
+          env: {}
+        });
+
+        assert.equal(response.status, 503);
+        assert.match((await response.json()).error, /not configured/);
+      });
+
+      assert.equal(response.status, 502);
+      assert.match((await response.json()).error, /confirmation email/);
+    } finally {
+      globalThis.fetch = originalFetch;
     }
   });
   const testServer = app.listen(0);

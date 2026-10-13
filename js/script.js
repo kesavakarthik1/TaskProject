@@ -91,7 +91,7 @@ $(function () {
       try {
         result = JSON.parse(responseText);
       } catch {
-        throw new Error("The registration server returned an invalid response. Start the backend with npm start and open http://localhost:3000.");
+        throw new Error("The registration server returned an invalid response. Check that the backend is running locally or the Cloudflare Pages Function has been deployed.");
       }
       if (!response.ok) {
         throw new Error(result.error || "We couldn't submit your registration.");
