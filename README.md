@@ -4,6 +4,7 @@ The site supports two deployments:
 
 - Cloudflare Pages uses the Pages Function in `functions/api/waitlist.js` and sends confirmations through Resend's HTTPS API.
 - Local Node.js development uses the Express backend and SMTP.
+- The dedicated service pages are `loans.html`, `insurance.html`, `investments.html`, and `wealth-solutions.html`.
 
 ## Deploy to Cloudflare Pages
 

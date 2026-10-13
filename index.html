@@ -13,23 +13,24 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <div class="scroll-progress" role="progressbar" aria-label="Page reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
   <header class="site-header">
     <nav class="navbar container" aria-label="Main navigation">
-      <a class="brand" href="#home" aria-label="LifeTime home">
+      <a class="brand" href="index.html#home" aria-label="LifeTime home">
         <img class="brand-logo" src="assets/images/lifetime-logo.jpe" alt="LifeTime logo">
       </a>
       <button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
       <div class="nav-links">
-        <a class="nav-link active" href="#home">Home</a>
-        <a class="nav-link" href="#loans">Loans</a>
-        <a class="nav-link" href="#insurance">Insurance</a>
-        <a class="nav-link" href="#investments">Investments</a>
-        <a class="nav-link" href="#wealth-solutions">Wealth Solutions</a>
-        <a class="nav-link" href="#about">About</a>
-        <a class="nav-link" href="#contact">Contact</a>
-        <a class="button button-gold nav-cta" href="#waitlist">Get Early Access <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        <a class="nav-link active" href="index.html#home" aria-current="page">Home</a>
+        <a class="nav-link" href="loans.html">Loans</a>
+        <a class="nav-link" href="insurance.html">Insurance</a>
+        <a class="nav-link" href="investments.html">Investments</a>
+        <a class="nav-link" href="wealth-solutions.html">Wealth Solutions</a>
+        <a class="nav-link" href="index.html#about">About</a>
+        <a class="nav-link" href="index.html#contact">Contact</a>
+        <a class="button button-gold nav-cta" href="index.html#waitlist">Get Early Access <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
       </div>
     </nav>
   </header>
@@ -90,8 +91,16 @@
           <h2>Your complete <span>financial ecosystem.</span></h2>
           <p>Everything your financial life needs, brought together to work better for you.</p>
         </div>
+        <div class="service-filters" role="group" aria-label="Filter financial services">
+          <button class="service-filter active" type="button" data-filter="all" aria-pressed="true">All services</button>
+          <button class="service-filter" type="button" data-filter="Loans" aria-pressed="false">Borrow</button>
+          <button class="service-filter" type="button" data-filter="Insurance" aria-pressed="false">Protect</button>
+          <button class="service-filter" type="button" data-filter="Investments" aria-pressed="false">Invest</button>
+          <button class="service-filter" type="button" data-filter="Wealth solutions" aria-pressed="false">Grow</button>
+          <span class="filter-status" aria-live="polite">Showing all 4 services</span>
+        </div>
         <div class="ecosystem-grid">
-          <article class="ecosystem-card reveal" id="loans">
+          <article class="ecosystem-card reveal" id="loans" data-service="Loans">
             <div class="service-icon loans-icon"><i class="fa-solid fa-house-chimney"></i></div>
             <span class="card-number">01 / BORROW</span>
             <h3>Loans</h3>
@@ -101,9 +110,9 @@
               <li><i class="fa-solid fa-check"></i> Business and education loans</li>
               <li><i class="fa-solid fa-check"></i> Clear options to compare</li>
             </ul>
-            <a href="#waitlist" class="text-link">Explore loans <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="loans.html" class="text-link">Explore loans <i class="fa-solid fa-arrow-right"></i></a>
           </article>
-          <article class="ecosystem-card reveal" id="insurance">
+          <article class="ecosystem-card reveal" id="insurance" data-service="Insurance">
             <div class="service-icon insurance-icon"><i class="fa-solid fa-shield-heart"></i></div>
             <span class="card-number">02 / PROTECT</span>
             <h3>Insurance</h3>
@@ -113,9 +122,9 @@
               <li><i class="fa-solid fa-check"></i> Motor and asset protection</li>
               <li><i class="fa-solid fa-check"></i> Cover that fits your needs</li>
             </ul>
-            <a href="#waitlist" class="text-link">Explore insurance <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="insurance.html" class="text-link">Explore insurance <i class="fa-solid fa-arrow-right"></i></a>
           </article>
-          <article class="ecosystem-card reveal" id="investments">
+          <article class="ecosystem-card reveal" id="investments" data-service="Investments">
             <div class="service-icon investments-icon"><i class="fa-solid fa-chart-pie"></i></div>
             <span class="card-number">03 / INVEST</span>
             <h3>Investments</h3>
@@ -125,9 +134,9 @@
               <li><i class="fa-solid fa-check"></i> Compare before you decide</li>
               <li><i class="fa-solid fa-check"></i> Start with your time horizon</li>
             </ul>
-            <a href="#waitlist" class="text-link">Explore investments <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="investments.html" class="text-link">Explore investments <i class="fa-solid fa-arrow-right"></i></a>
           </article>
-          <article class="ecosystem-card reveal" id="wealth-solutions">
+          <article class="ecosystem-card reveal" id="wealth-solutions" data-service="Wealth solutions">
             <div class="service-icon wealth-icon"><i class="fa-solid fa-sack-dollar"></i></div>
             <span class="card-number">04 / GROW</span>
             <h3>Wealth Solutions</h3>
@@ -137,8 +146,44 @@
               <li><i class="fa-solid fa-check"></i> Make informed decisions</li>
               <li><i class="fa-solid fa-check"></i> Keep your long-term goals in view</li>
             </ul>
-            <a href="#waitlist" class="text-link">Explore wealth <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="wealth-solutions.html" class="text-link">Explore wealth <i class="fa-solid fa-arrow-right"></i></a>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="calculator-section" id="loan-calculator">
+      <div class="container calculator-layout">
+        <div class="calculator-copy reveal">
+          <span class="section-kicker">PLAN WITH A CLEARER PICTURE</span>
+          <h2>Estimate your <span>monthly loan payment.</span></h2>
+          <p>Adjust the values to see how the loan amount, interest rate and repayment period affect an estimated EMI.</p>
+          <p class="calculator-disclaimer"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> This is an estimate for illustration only, not a loan offer or financial advice. Actual rates and charges depend on the lender.</p>
+        </div>
+        <div class="emi-calculator reveal" aria-label="Loan EMI estimator">
+          <label class="calculator-control" for="loan-amount">
+            <span class="calculator-control-heading"><span>Loan amount</span><output id="loan-amount-value" for="loan-amount">₹25,00,000</output></span>
+            <input id="loan-amount" name="amount" type="range" min="100000" max="10000000" step="100000" value="2500000">
+            <span class="range-ends"><span>₹1 lakh</span><span>₹1 crore</span></span>
+          </label>
+          <label class="calculator-control" for="interest-rate">
+            <span class="calculator-control-heading"><span>Annual interest rate</span><output id="interest-rate-value" for="interest-rate">9%</output></span>
+            <input id="interest-rate" name="rate" type="range" min="5" max="20" step="0.1" value="9">
+            <span class="range-ends"><span>5%</span><span>20%</span></span>
+          </label>
+          <label class="calculator-control" for="loan-tenure">
+            <span class="calculator-control-heading"><span>Repayment period</span><output id="loan-tenure-value" for="loan-tenure">20 years</output></span>
+            <input id="loan-tenure" name="tenure" type="range" min="1" max="30" step="1" value="20">
+            <span class="range-ends"><span>1 year</span><span>30 years</span></span>
+          </label>
+          <div class="emi-result" aria-live="polite" aria-atomic="true">
+            <span class="emi-result-label">Estimated monthly EMI</span>
+            <output class="emi-monthly" id="emi-monthly" for="loan-amount interest-rate loan-tenure">₹22,493</output>
+            <div class="emi-breakdown">
+              <span>Total interest <strong id="emi-interest">₹28,98,320</strong></span>
+              <span>Total repayment <strong id="emi-total">₹53,98,320</strong></span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -229,6 +274,7 @@
     </div>
   </footer>
 
+  <button class="back-to-top" type="button" aria-label="Back to top"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="js/script.js"></script>
 </body>

@@ -4,17 +4,42 @@ $(function () {
   const $navLinks = $(".nav-links");
 
   function updateHeader() {
-    $header.toggleClass("scrolled", $(window).scrollTop() > 12);
+    const scrollTop = $(window).scrollTop();
+    const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = scrollableHeight > 0 ? Math.round((scrollTop / scrollableHeight) * 100) : 0;
+    $header.toggleClass("scrolled", scrollTop > 12);
+    $(".scroll-progress").css("transform", "scaleX(" + progress / 100 + ")")
+      .attr("aria-valuenow", String(progress));
+    $(".back-to-top").toggleClass("visible", scrollTop > 500);
   }
 
   updateHeader();
-  $(window).on("scroll", updateHeader);
+  let scrollFrame = null;
+  $(window).on("scroll", function () {
+    if (scrollFrame !== null) return;
+    scrollFrame = window.requestAnimationFrame(function () {
+      updateHeader();
+      scrollFrame = null;
+    });
+  });
 
   $menuButton.on("click", function () {
     const isOpen = $(this).attr("aria-expanded") === "true";
     $(this).attr("aria-expanded", String(!isOpen));
     $(this).attr("aria-label", isOpen ? "Open navigation menu" : "Close navigation menu");
     $navLinks.toggleClass("open", !isOpen);
+  });
+
+  function closeMenu() {
+    $navLinks.removeClass("open");
+    $menuButton.attr("aria-expanded", "false").attr("aria-label", "Open navigation menu");
+  }
+
+  $(document).on("keydown", function (event) {
+    if (event.key === "Escape") closeMenu();
+  });
+  $(document).on("click", function (event) {
+    if ($navLinks.hasClass("open") && !$(event.target).closest(".navbar").length) closeMenu();
   });
 
   $(".nav-links a, .brand, .scroll-cue, .text-link, .process-cta a").on("click", function (event) {
@@ -24,8 +49,27 @@ $(function () {
     if (!$target.length) return;
     event.preventDefault();
     $("html, body").stop().animate({ scrollTop: $target.offset().top - $header.outerHeight() + 1 }, 550);
-    $navLinks.removeClass("open");
-    $menuButton.attr("aria-expanded", "false").attr("aria-label", "Open navigation menu");
+    closeMenu();
+  });
+
+  const navTargets = $(".nav-links .nav-link").map(function () {
+    return this.hash ? document.querySelector(this.hash) : null;
+  }).get().filter(Boolean);
+  if ("IntersectionObserver" in window) {
+    const navObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        const targetId = entry.target.id;
+        $(".nav-links .nav-link").removeClass("active")
+          .filter('[href="#' + targetId + '"]').addClass("active");
+      });
+    }, { rootMargin: "-20% 0px -68% 0px" });
+    navTargets.forEach((target) => navObserver.observe(target));
+  }
+
+  $(".back-to-top").on("click", function () {
+    $("html, body").stop().animate({ scrollTop: 0 }, 550);
+    history.replaceState(null, "", window.location.pathname + window.location.search);
   });
 
   $(".button-gold, .button-navy, .button-outline").on("click", function () {
@@ -47,6 +91,78 @@ $(function () {
   } else {
     revealItems.forEach((item) => item.classList.add("is-visible"));
   }
+
+  $(".service-filter").on("click", function () {
+    const filter = $(this).attr("data-filter");
+    const $cards = $(".ecosystem-card");
+    $(".service-filter").removeClass("active").attr("aria-pressed", "false");
+    $(this).addClass("active").attr("aria-pressed", "true");
+
+    let visibleCount = 0;
+    $cards.each(function () {
+      const matches = filter === "all" || $(this).attr("data-service") === filter;
+      $(this).prop("hidden", !matches);
+      if (matches) {
+        visibleCount += 1;
+        this.classList.remove("filter-enter");
+        void this.offsetWidth;
+        this.classList.add("filter-enter");
+      } else {
+        this.classList.remove("filter-enter");
+      }
+    });
+
+    $(".filter-status").text(filter === "all"
+      ? "Showing all " + visibleCount + " services"
+      : "Showing " + visibleCount + " service");
+  });
+
+  const requestedInterest = new URLSearchParams(window.location.search).get("interest");
+  const $interestField = $("#waitlist [name='interest']");
+  if (requestedInterest && $interestField.find("option").filter(function () {
+    return $(this).val() === requestedInterest || $(this).text() === requestedInterest;
+  }).length) {
+    $interestField.val(requestedInterest).trigger("change");
+  }
+
+  const currencyFormatter = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0
+  });
+  const $loanAmount = $("#loan-amount");
+  const $interestRate = $("#interest-rate");
+  const $loanTenure = $("#loan-tenure");
+
+  function updateLoanEstimate() {
+    const principal = Number($loanAmount.val());
+    const annualRate = Number($interestRate.val());
+    const years = Number($loanTenure.val());
+    const monthlyRate = annualRate / 1200;
+    const payments = years * 12;
+    const monthlyPayment = monthlyRate === 0
+      ? principal / payments
+      : principal * monthlyRate * Math.pow(1 + monthlyRate, payments)
+        / (Math.pow(1 + monthlyRate, payments) - 1);
+    const totalPayment = monthlyPayment * payments;
+
+    $("#loan-amount-value").text(currencyFormatter.format(principal));
+    $("#interest-rate-value").text(annualRate + "%");
+    $("#loan-tenure-value").text(years + (years === 1 ? " year" : " years"));
+    $("#emi-monthly").text(currencyFormatter.format(monthlyPayment));
+    $("#emi-interest").text(currencyFormatter.format(totalPayment - principal));
+    $("#emi-total").text(currencyFormatter.format(totalPayment));
+
+    [$loanAmount, $interestRate, $loanTenure].forEach(function ($input) {
+      const min = Number($input.attr("min"));
+      const max = Number($input.attr("max"));
+      const value = Number($input.val());
+      $input.css("--range-progress", ((value - min) / (max - min)) * 100 + "%");
+    });
+  }
+
+  $loanAmount.add($interestRate).add($loanTenure).on("input change", updateLoanEstimate);
+  updateLoanEstimate();
 
   $("#waitlist").on("submit", async function (event) {
     event.preventDefault();

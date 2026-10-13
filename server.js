@@ -11,7 +11,9 @@ function createApp(mailer) {
   const app = express();
   app.use(express.json({ limit: "10kb" }));
 
-  app.get("/", (request, response) => response.sendFile(path.join(ROOT, "index.html")));
+  app.get(["/", "/index.html"], (request, response) => response.sendFile(path.join(ROOT, "index.html")));
+  app.get(["/loans.html", "/insurance.html", "/investments.html", "/wealth-solutions.html"],
+    (request, response) => response.sendFile(path.join(ROOT, request.path.slice(1))));
   app.use("/css", express.static(path.join(ROOT, "css")));
   app.use("/js", express.static(path.join(ROOT, "js")));
   app.use("/assets", express.static(path.join(ROOT, "assets")));
