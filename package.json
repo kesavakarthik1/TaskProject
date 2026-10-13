@@ -1,0 +1,16 @@
+{
+  "name": "lifetime-waitlist",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LifeTime waitlist website and registration email backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "nodemailer": "^10.1.0"
+  }
+}

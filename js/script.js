@@ -48,16 +48,18 @@ $(function () {
     revealItems.forEach((item) => item.classList.add("is-visible"));
   }
 
-  $("#waitlist").on("submit", function (event) {
+  $("#waitlist").on("submit", async function (event) {
     event.preventDefault();
     const $form = $(this);
     const name = $.trim($form.find('[name="name"]').val());
     const mobile = $.trim($form.find('[name="mobile"]').val()).replace(/\D/g, "");
+    const email = $.trim($form.find('[name="email"]').val());
     const interest = $form.find('[name="interest"]').val();
     const city = $.trim($form.find('[name="city"]').val());
     const values = [
       [$form.find('[name="name"]'), name.length >= 2],
       [$form.find('[name="mobile"]'), mobile.length === 10],
+      [$form.find('[name="email"]'), /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)],
       [$form.find('[name="interest"]'), Boolean(interest)],
       [$form.find('[name="city"]'), city.length >= 2]
     ];
@@ -68,17 +70,37 @@ $(function () {
     });
     const $message = $form.find(".form-message");
     if (firstInvalid) {
-      $message.text("Please enter a valid name, 10-digit mobile number, interest and city.");
+      $message.text("Please enter a valid name, email, 10-digit mobile number, interest and city.");
       $message.css("color", "#ffb3a8");
       firstInvalid.trigger("focus");
       return;
     }
-    $message.css("color", "#7ee2b7").text("You're on the list, " + name.split(/\s+/)[0] + "! We'll be in touch soon.");
-    $form.find(".form-submit").text("You're on the list!").prop("disabled", true);
+
+    const $submit = $form.find(".form-submit");
+    const originalButton = $submit.html();
+    $submit.text("Sending...").prop("disabled", true);
+    $message.empty().css("color", "");
+    try {
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, mobile, email, interest, city })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "We couldn't submit your registration.");
+      $message.css("color", "#7ee2b7").text(result.message);
+      $submit.text("You're on the list!");
+    } catch (error) {
+      $message.css("color", "#ffb3a8").text(
+        error instanceof Error ? error.message : "We couldn't submit your registration. Please try again."
+      );
+      $submit.html(originalButton).prop("disabled", false);
+    }
   });
 
   $("#waitlist input, #waitlist select").on("input change", function () {
     $(this).removeClass("invalid").attr("aria-invalid", "false");
-    $("#waitlist .form-message").empty().css("color", "");
+    const $form = $("#waitlist");
+    $form.find(".form-message").empty().css("color", "");
   });
 });
