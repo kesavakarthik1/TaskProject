@@ -67,6 +67,33 @@ test("returns a delivery error when the mail provider rejects a message", async 
       throw new Error("SMTP unavailable");
     }
   });
+
+  test("returns JSON errors for invalid JSON and unknown API routes", async () => {
+    const app = createApp({
+      sendMail: async () => ({ accepted: [validRegistration.email] })
+    });
+    const testServer = app.listen(0);
+    await new Promise((resolve) => testServer.once("listening", resolve));
+
+    try {
+      const baseUrl = `http://127.0.0.1:${testServer.address().port}`;
+      const invalidJsonResponse = await fetch(`${baseUrl}/api/waitlist`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{"
+      });
+      assert.equal(invalidJsonResponse.status, 400);
+      assert.match((await invalidJsonResponse.json()).error, /valid JSON/);
+
+      const unknownRouteResponse = await fetch(`${baseUrl}/api/missing`);
+      assert.equal(unknownRouteResponse.status, 404);
+      assert.match((await unknownRouteResponse.json()).error, /not found/);
+    } finally {
+      await new Promise((resolve, reject) => {
+        testServer.close((error) => error ? reject(error) : resolve());
+      });
+    }
+  });
   const testServer = app.listen(0);
   await new Promise((resolve) => testServer.once("listening", resolve));
 

@@ -94,6 +94,28 @@ function createApp(mailer) {
     });
   });
 
+  app.use("/api", (request, response) => {
+    response.status(404).json({ error: "This API endpoint was not found." });
+  });
+
+  app.use((error, request, response, next) => {
+    if (!request.path.startsWith("/api/")) {
+      return next(error);
+    }
+
+    const status = error.status === 413 ? 413 : error.status === 400 ? 400 : 500;
+    if (status === 500) {
+      console.error("Waitlist API request failed:", error);
+    }
+    return response.status(status).json({
+      error: status === 413
+        ? "The request is too large."
+        : status === 400
+          ? "The request body must contain valid JSON."
+          : "The registration request could not be processed."
+    });
+  });
+
   return app;
 }
 

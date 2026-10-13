@@ -86,8 +86,19 @@ $(function () {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, mobile, email, interest, city })
       });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "We couldn't submit your registration.");
+      const responseText = await response.text();
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error("The registration server returned an invalid response. Start the backend with npm start and open http://localhost:3000.");
+      }
+      if (!response.ok) {
+        throw new Error(result.error || "We couldn't submit your registration.");
+      }
+      if (typeof result.message !== "string") {
+        throw new Error("The registration server returned an unexpected response. Please try again.");
+      }
       $message.css("color", "#7ee2b7").text(result.message);
       $submit.text("You're on the list!");
     } catch (error) {
